@@ -358,9 +358,13 @@
     if (_cellState != kCellStateCenter)
     {
         //TODO: Check again after SDK update. Temporary solution.
-        [UIView animateWithDuration:0.2 animations:^{
+        if (animated) {
+            [UIView animateWithDuration:0.2 animations:^{
+                [self.cellScrollView setContentOffset:[self contentOffsetForCellState:kCellStateCenter]];
+            }];
+        } else {
             [self.cellScrollView setContentOffset:[self contentOffsetForCellState:kCellStateCenter]];
-        }];
+        }
 
         if ([self.delegate respondsToSelector:@selector(swipeableTableViewCell:scrollingToState:)])
         {
