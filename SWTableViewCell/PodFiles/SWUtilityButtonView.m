@@ -226,17 +226,6 @@ NS_INLINE double timeFxn(double time) {
     _animationProgress = animationProgress;
     NSUInteger buttonsCount = self.utilityButtons.count;
     __block CGFloat animationProgressForCurrentButton = 0.f;
-//    [self.edgeConstrains enumerateObjectsUsingBlock:^(NSLayoutConstraint * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-//        CGFloat currentProgress = 1.f/(idx+1);
-////      CGFloat currentProgress = (CGFloat)idx/(CGFloat)buttonsCount;
-//        if (currentProgress < animationProgress) {
-//            animationProgressForCurrentButton = (animationProgress - currentProgress)/(1.f-currentProgress);
-//            if (isnormal(animationProgressForCurrentButton)) {
-//                obj.constant = (-self.buttonWidth) + ((self.buttonWidth * (buttonsCount-idx)) * animationProgressForCurrentButton + 10.f);
-//            }
-//            NSLog(@"%@ <----> %@ <----> %@", @(idx), @(animationProgressForCurrentButton), @(obj.constant));
-//        }
-//    }];
     [self.edgeConstrains enumerateObjectsUsingBlock:^(NSLayoutConstraint * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         obj.constant = [self.animationCurves[idx][(NSUInteger)(animationProgress*100)] doubleValue];
     }];
@@ -253,7 +242,7 @@ NS_INLINE double timeFxn(double time) {
     for (NSUInteger i = 0; i < numSteps; i++) {
         NSValue *value = valueFxn(timeFxn(time), @(-self.buttonWidth), @((self.buttonWidth * (buttonsCount-idx-1) + 10.f)));
         [values addObject:value];
-        time = MIN(1, MAX(0, time + timeStep));
+        time = MIN(1.f, MAX(0, time + timeStep));
     }
     
     return values;
