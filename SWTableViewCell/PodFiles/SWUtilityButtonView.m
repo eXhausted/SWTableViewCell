@@ -251,7 +251,7 @@ NS_INLINE double timeFxn(double time) {
     NSUInteger buttonsCount = self.utilityButtons.count;
     
     for (NSUInteger i = 0; i < numSteps; i++) {
-        NSValue *value = valueFxn(timeFxn(time), @(-self.buttonWidth), @((self.buttonWidth * (buttonsCount-idx-1))));
+        NSValue *value = valueFxn(timeFxn(time), @(-self.buttonWidth), @((self.buttonWidth * (buttonsCount-idx-1) + 10.f)));
         [values addObject:value];
         time = MIN(1, MAX(0, time + timeStep));
     }
