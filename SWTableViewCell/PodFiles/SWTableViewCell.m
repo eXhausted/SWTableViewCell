@@ -154,7 +154,7 @@ static NSString * const kTableViewCellContentView = @"UITableViewCellContentView
         clipConstraint.priority = UILayoutPriorityDefaultHigh;
         
         clipView.translatesAutoresizingMaskIntoConstraints = NO;
-        clipView.clipsToBounds = YES;
+        clipView.clipsToBounds = NO;
         
         [clipViewParent addSubview:clipView];
         [self addConstraints:@[
@@ -639,6 +639,21 @@ static NSString * const kTableViewPanState = @"state";
     }
 }
 
+- (void)resetButtonViewsForCellState {
+    switch (self.cellState) {
+        case kCellStateCenter:
+            [self.rightUtilityButtonsView resetButtonsStatesToZero];
+            break;
+            
+        case kCellStateRight:
+            [self.rightUtilityButtonsView resetButtonsStatesToFinish];
+            break;
+            
+        default:
+            break;
+    }
+}
+
 #pragma mark - UIScrollViewDelegate
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
@@ -708,7 +723,7 @@ static NSString * const kTableViewPanState = @"state";
 {
     if (scrollView.contentOffset.x > [self leftUtilityButtonsWidth])
     {
-        self.rightUtilityButtonsView.animationProgress = 1.f - fabs(self.rightUtilityButtonsView.frame.origin.x / self.rightUtilityButtonsView.frame.size.width);
+        self.rightUtilityButtonsView.animationProgress = 1.f + self.rightUtilityButtonsView.frame.origin.x / self.rightUtilityButtonsView.frame.size.width;
         if ([self rightUtilityButtonsWidth] > 0)
         {
             if (self.delegate && [self.delegate respondsToSelector:@selector(swipeableTableViewCell:canSwipeToState:)])
@@ -753,6 +768,7 @@ static NSString * const kTableViewPanState = @"state";
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
     [self updateCellState];
+    [self resetButtonViewsForCellState];
 
     if (self.delegate && [self.delegate respondsToSelector:@selector(swipeableTableViewCellDidEndScrolling:)]) {
         [self.delegate swipeableTableViewCellDidEndScrolling:self];
@@ -762,6 +778,7 @@ static NSString * const kTableViewPanState = @"state";
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
 {
     [self updateCellState];
+    [self resetButtonViewsForCellState];
 
     if (self.delegate && [self.delegate respondsToSelector:@selector(swipeableTableViewCellDidEndScrolling:)]) {
         [self.delegate swipeableTableViewCellDidEndScrolling:self];

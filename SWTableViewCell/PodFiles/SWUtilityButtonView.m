@@ -74,7 +74,7 @@ NS_INLINE NSValue *valueFxn(double progress, id fromValue, id toValue) {
 }
 
 NS_INLINE double timeFxn(double time) {
-    return ParametricAnimationTimeBlockAppleIn(time);
+    return ParametricAnimationTimeBlockBackOut(time);
 }
 
 @interface SWUtilityButtonView()
@@ -119,6 +119,8 @@ NS_INLINE double timeFxn(double time) {
         _parentCell = parentCell;
         self.utilityButtonSelector = utilityButtonSelector;
         self.utilityButtons = utilityButtons;
+        self.clipsToBounds = NO;
+        self.autoresizesSubviews = NO;
     }
     
     return self;
@@ -158,7 +160,7 @@ NS_INLINE double timeFxn(double time) {
             [self addSubview:button];
             button.translatesAutoresizingMaskIntoConstraints = NO;
             
-            NSArray *edgeConstraint = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"H:[button]-(%f)-|", animationWidth]
+            NSArray *edgeConstraint = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"H:[button]-(%f)-|", -width]
                                                                               options:0L
                                                                               metrics:nil
                                                                                 views:NSDictionaryOfVariableBindings(button)];
@@ -223,11 +225,18 @@ NS_INLINE double timeFxn(double time) {
 #pragma mark - 
 
 - (void)setAnimationProgress:(CGFloat)animationProgress {
+    if (animationProgress > 1.f) animationProgress = 1.f;
     _animationProgress = animationProgress;
     NSUInteger buttonsCount = self.utilityButtons.count;
     __block CGFloat animationProgressForCurrentButton = 0.f;
     [self.edgeConstrains enumerateObjectsUsingBlock:^(NSLayoutConstraint * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        obj.constant = [self.animationCurves[idx][(NSUInteger)(animationProgress*100)] doubleValue];
+        CGFloat currentProgress = idx == 0 ? 0 : 1.f - (1.f / (idx + 1));
+        if (currentProgress < animationProgress) {
+            animationProgressForCurrentButton = (animationProgress - currentProgress)/(1.f-currentProgress);
+            if (isnormal(animationProgressForCurrentButton)) {
+                obj.constant = [self.animationCurves[idx][(NSUInteger)(animationProgressForCurrentButton*100)] doubleValue];
+            }
+        }
     }];
 }
 
@@ -246,6 +255,18 @@ NS_INLINE double timeFxn(double time) {
     }
     
     return values;
+}
+
+- (void)resetButtonsStatesToZero {
+    [self.edgeConstrains enumerateObjectsUsingBlock:^(NSLayoutConstraint * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        obj.constant = -self.buttonWidth;
+    }];
+}
+
+- (void)resetButtonsStatesToFinish {
+    [self.edgeConstrains enumerateObjectsUsingBlock:^(NSLayoutConstraint * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        obj.constant = [self.animationCurves[idx][100] doubleValue];;
+    }];
 }
 
 @end

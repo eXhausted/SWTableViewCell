@@ -24,5 +24,7 @@
 - (void)setUtilityButtons:(NSArray *)utilityButtons WithButtonWidth:(CGFloat)width;
 - (void)pushBackgroundColors;
 - (void)popBackgroundColors;
+- (void)resetButtonsStatesToZero;
+- (void)resetButtonsStatesToFinish;
 
 @end
